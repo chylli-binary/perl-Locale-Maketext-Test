@@ -4,6 +4,11 @@ use 5.006;
 use strict;
 use warnings;
 
+use Moose;
+use Try::Tiny;
+use File::Spec qw(rel2abs);
+use Locale::Maketext::ManyPluralForms;
+
 =head1 NAME
 
 Locale::Maketext::Test - The great new Locale::Maketext::Test!
@@ -16,7 +21,6 @@ Version 0.01
 
 our $VERSION = '0.01';
 
-
 =head1 SYNOPSIS
 
 Quick summary of what the module does.
@@ -25,29 +29,200 @@ Perhaps a little code snippet.
 
     use Locale::Maketext::Test;
 
-    my $foo = Locale::Maketext::Test->new();
-    ...
-
-=head1 EXPORT
-
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
+    my $foo = Locale::Maketext::Test->new({directory => '/tmp/locales'});
+    # test particular languages
+    Locale::Maketext::Test->new({directory => '/tmp/locales', languages => ['en', 'de']});
+    # if you want to output warning add debug flag else it will output errors only
+    Locale::Maketext::Test->new({directory => '/tmp/locales', debug => 1});
 
 =head1 SUBROUTINES/METHODS
 
-=head2 function1
+=head2 debug
+
+set this if you need to print warnings along with errors
 
 =cut
 
-sub function1 {
-}
+has debug => (
+    is      => 'rw',
+    isa     => 'Bool',
+    default => 0
+);
 
-=head2 function2
+=head2 directory
+
+directory where locales files are located
 
 =cut
 
-sub function2 {
+has directory => (
+    is       => 'ro',
+    isa      => 'str',
+    required => 1
+);
+
+=head2 languages
+
+language array, set this if you want to test specific language only
+
+=cut
+
+has languages => (
+    is      => 'rw',
+    isa     => 'ArrayRef[Str]',
+    default => sub { [] });
+
+sub BUILD {
+    my $self = shift;
+
+    unless (scalar @{$self->languages}) {
+        my @lang = sort do {
+            if (opendir my $dh, $self->directory) {
+                grep { s/^(\w+)\.po$/$1/ } readdir $dh;
+            } else {
+                ();
+            }
+        };
+        $self->languages(\@lang);
+    }
+
+    Locale::Maketext::ManyPluralForms->import({
+            '_encoding' => 'utf-8',
+            '*'         => ['Gettext' => File::Spec->rel2abs($self->directory) . '/*.po']});
 }
+
+sub _cstring {
+    my %map = (
+        'a' => "\007",
+        'b' => "\010",
+        't' => "\011",
+        'n' => "\012",
+        'v' => "\013",
+        'f' => "\014",
+        'r' => "\015",
+    );
+    return $_[0] =~ s/
+                         \\
+                         (?:
+                             ([0-7]{1,3})
+                         |
+                             x([0-9a-fA-F]{1,2})
+                         |
+                             ([\\'"?abfvntr])
+                         )
+                     /$1 ? chr(oct($1)) : $2 ? chr(hex($2)) : ($map{$3} || $3)/regx;
+}
+
+sub _bstring {
+    my @params;
+    return $_[0] =~ s!
+                         (?>                       # matches %func(%N,parameters...)
+                             %
+                             (?<func>\w+)
+                             \(
+                             %
+                             (?<p0>[0-9]+)
+                             (?<prest>[^\)]*)
+                             \)
+                         )
+                     |
+                         (?>                       # matches %func(parameters)
+                             %
+                             (?<simplefunc>\w+)
+                             \(
+                             (?<simpleparm>[^\)]*)
+                             \)
+                         )
+                     |                             # matches %N
+                         %
+                         (?<simple>[0-9]+)
+                     |                             # [, ] and ~ should be escaped as ~[, ~] and ~~
+                         (?<esc>[\[\]~])
+                     !
+                         if ($+{esc}) {
+                             "~$+{esc}";
+                         } elsif ($+{simplefunc}) {
+                             "[$+{simplefunc},$+{simpleparm}]";
+                         } else {
+                             my $pos = ($+{func} ? $+{p0} : $+{simple}) - 1;
+                             $params[$pos] = $+{func} && $+{func} eq 'plural' ? 'plural' : ($params[$pos] // 'text');
+                             $+{func} ? "[$+{func},_$+{p0}$+{prest}]" : "[_$+{simple}]";
+                         }
+                     !regx, \@params;
+}
+
+{
+    my @stack;
+
+    sub _nextline {
+        return pop @stack if @stack;
+        return scalar readline $_[0];
+    }
+
+    sub _unread {
+        push @stack, @_;
+    }
+}
+
+sub _get_trans {
+    my $f = shift;
+
+    while (defined(my $l = _nextline $f)) {
+        if ($l =~ /^\s*msgstr\s*"(.*)"/) {
+            my $line = $1;
+            while (defined($l = _nextline $f)) {
+                if ($l =~ /^\s*"(.*)"/) {
+                    $line .= $1;
+                } else {
+                    _unread $l;
+                    return _cstring($line);
+                }
+            }
+            return _cstring($line);
+        }
+    }
+}
+
+sub _get_po {
+    my $lang        = shift;
+    my $header_only = shift;
+
+    my %header, @ids, $ln;
+    my $first = 1;
+
+    open my $f, '<:utf8', $lang or die "Cannot open $lang: $!\n";
+    READ:
+    while (defined(my $l = _nextline $f)) {
+        if ($l =~ /^\s*msgid\s*"(.*)"/) {
+            my $line = $1;
+            $ln = $.;
+            while (defined($l = _nextline $f)) {
+                if ($l =~ /^\s*"(.*)"/) {
+                    $line .= $1;
+                } else {
+                    _unread $l;
+                    if ($first) {
+                        undef $first;
+                        %header = map { split /\s*:\s*/, lc($_), 2 } split /\n/, _get_trans($f);
+                        last READ if $header_only;
+                    } elsif (length $line) {
+                        push @ids, [_bstring(_cstring($line)), _get_trans($f), $ln];
+                    }
+                    last;
+                }
+            }
+        }
+    }
+
+    return {
+        header => \%header,
+        ids    => \@ids,
+        lang   => $header{language},
+        file   => $lang,
+    };
+}
+
+__PACKAGE__->meta->make_immutable;
 
 =head1 AUTHOR
 
@@ -138,4 +313,4 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-1; # End of Locale::Maketext::Test
+1;    # End of Locale::Maketext::Test
