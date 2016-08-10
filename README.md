@@ -99,6 +99,8 @@ directory where locales files are located
 
 language array, set this if you want to test specific language only
 
+## BUILD
+
 ## testlocales
 
 test po files in directory specified

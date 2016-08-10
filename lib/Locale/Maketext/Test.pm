@@ -154,6 +154,10 @@ has _status => (
             warnings => []};
     });
 
+=head2 BUILD
+
+=cut
+
 sub BUILD {
     my $self = shift;
 
