@@ -147,15 +147,13 @@ has _status => (
     isa      => 'HashRef',
     lazy     => 1,
     init_arg => undef,
-    build    => '_build_status'
+    default  => sub {
+        {
+            status   => 1,
+            errors   => [],
+            warnings => []};
+    });
 );
-
-sub _build_status {
-    return {
-        status   => 1,
-        errors   => [],
-        warnings => []};
-}
 
 sub BUILD {
     my $self = shift;
