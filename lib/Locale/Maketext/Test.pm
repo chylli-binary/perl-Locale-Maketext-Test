@@ -3,6 +3,7 @@ package Locale::Maketext::Test;
 use 5.006;
 use strict;
 use warnings;
+use utf8;
 
 use Try::Tiny;
 use Test::MockModule;
@@ -160,13 +161,15 @@ sub BUILD {
     my $self = shift;
 
     unless (scalar @{$self->languages}) {
-        my @lang = sort do {
-            if (opendir my $dh, $self->directory) {
-                grep { s/^(\w+)\.po$/$1/ } readdir $dh;
-            } else {
-                ();
+        my @lang = ();
+        if (opendir my $dh, $self->directory) {
+            while (readdir $dh) {
+                if (my ($x) = grep { $_ =~ /^(\w+)\.po$/ } $_) {
+                    push @lang, ($x) = split(/\./, $x);
+                }
             }
-        };
+            @lang = sort @lang;
+        }
         $self->languages(\@lang);
     }
 
@@ -402,10 +405,10 @@ sub _get_po {
     my $lang        = shift;
     my $header_only = shift;
 
-    my %header, @ids, $ln;
+    my (%header, @ids, $ln);
     my $first = 1;
 
-    open my $f, '<:utf8', $lang or die "Cannot open $lang: $!\n";
+    open my $f, '<:encoding(UTF-8)', $lang or die "Cannot open $lang: $!\n";
     READ:
     while (defined(my $l = _nextline $f)) {
         if ($l =~ /^\s*msgid\s*"(.*)"/) {
