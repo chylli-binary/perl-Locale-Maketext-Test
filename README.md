@@ -111,6 +111,15 @@ This returns hash with status, errors and warnings
         warnings => [warn1, warn2]
     }
 
+# INSTALLATION
+
+To install this module, run the following commands:
+
+    perl Makefile.PL
+    make
+    make test
+    make install
+
 # AUTHOR
 
 Binary.com, `<binary at cpan.org>`

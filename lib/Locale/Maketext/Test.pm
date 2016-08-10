@@ -153,7 +153,6 @@ has _status => (
             errors   => [],
             warnings => []};
     });
-);
 
 sub BUILD {
     my $self = shift;
