@@ -12,7 +12,7 @@ use Locale::Maketext::ManyPluralForms;
 
 =head1 NAME
 
-Locale::Maketext::Test - The great new Locale::Maketext::Test!
+Locale::Maketext::Test
 
 =head1 VERSION
 
@@ -32,6 +32,20 @@ our $VERSION = '0.01';
     # languages => ['en', 'de'] - to test specific languages in directory, else it will pick all po files in directory
     # debug     => 1 - if you want to check warnings add debug flag else it will output errors only
 
+    # start test
+    my $response = $foo->testlocales();
+
+    # no errors or warnings if
+    $response->{status} eq 1;
+
+    # something is wrong when
+    $response->{status} eq 0;
+
+    # check for errors and warnings in case status is 0
+    $response->{errors} = [error1, error2];
+    # warnings are only present when debug is set to 1
+    $response->{warnings} = [warning1, warning2];
+
 =head1 DESCRIPTION
 
 This reads all message ids from the specified PO files and tries to
@@ -39,49 +53,51 @@ translate them into the destination language. PO files can be specified either
 as file name (extension .po) or by providing the language. In the latter case
 the PO file is found in the directory given by the directory option.
 
-TYPES OF ERRORS FOUND
+=head2 TYPES OF ERRORS FOUND
 
-* unknown %func() calls
-  Translations can contain function calls in the form of %func(parameters).
-  These functions must be defined in our code. Sometimes translators try to
-  translate the function name which then calls an undefined function.
+=head3 unknown %func() calls
 
-* incorrect number of %plural() parameters
-  Different languages have different numbers of plural forms. Some, like Malay,
-  don't have any plural forms. Some, like English or French, have just 2 forms,
-  singular and one plural. Others like Arabic or Russian have more forms.
-  Whenever a translator uses the %plural() function, he must specify the correct
-  number of plural forms as parameters.
+Translations can contain function calls in the form of %func(parameters).
+These functions must be defined in our code. Sometimes translators try
+to translate the function name which then calls an undefined function.
 
-* incorrect usage of %d in %plural() parameters
-  In some languages, like English or German, singular is applicable only to the
-  quantity of 1. That means the German translator could come up for instance
-  with the following valid %plural call:
+=head3 incorrect number of %plural() parameters
+
+Different languages have different numbers of plural forms.
+Some, like Malay, don't have any plural forms. Some, like English or French,
+have just 2 forms, singular and one plural. Others like Arabic or Russian have
+more forms. Whenever a translator uses the %plural() function, he must specify
+the correct number of plural forms as parameters.
+
+=head3 incorrect usage of %d in %plural() parameters
+
+In some languages, like English or German, singular is applicable only to the
+quantity of 1. That means the German translator could come up for instance
+with the following valid %plural call:
 
     %plural(%5,ein Stein,%d Steine)
 
-  In other languages, like French or Russian, this would be an error. French
-  uses singular also for 0 quantities. So, if the French translator calls:
+In other languages, like French or Russian, this would be an error. French uses
+singular also for 0 quantities. So, if the French translator calls:
 
     %plural(%5,une porte,%d portes)
 
-  and in the actual call the quantity of 0 is passed the output is still
-  "une porte". In Russian the problem is even more critical because singular
-  is used for instance also for the quantity of 121.
+and in the actual call the quantity of 0 is passed the output is still "une porte".
+In Russian the problem is even more critical because singular is used for instance
+also for the quantity of 121.
 
-  Thus, this test checks if a) the target language is similar to English in
-  having only 2 plural forms, singular and one plural, and in applying
-  singular only to the quantity of 1. If both of these conditions are met
-  %plural calls like the above are allowed. Otherwise, if at least one of
-  the parameters passed to %plural contains a %d, all of the parameters must
-  contain the %d as well.
+Thus, this test checks if a) the target language is similar to English in having only
+2 plural forms, singular and one plural, and in applying singular only to the quantity
+of 1. If both of these conditions are met %plural calls like the above are allowed.
+Otherwise, if at least one of the parameters passed to %plural contains a %d,
+all of the parameters must contain the %d as well.
 
-  That means the following 2 %plural calls are allowed in Russian:
+That means the following 2 %plural calls are allowed in Russian:
 
     %plural(%3,%d книга,%d книги,%d книг)
     %3 %plural(%3,книга,книги,книг)
 
-  while this is forbidden:
+while this is forbidden:
 
     %plural(%3,одна книга,%d книги,%d книг)
 
@@ -158,6 +174,12 @@ sub BUILD {
             '_encoding' => 'utf-8',
             '*'         => ['Gettext' => File::Spec->rel2abs($self->directory) . '/*.po']});
 }
+
+=head2 testlocales
+
+test po files in directory specified
+
+=cut
 
 sub testlocales {
     my $self = shift;
@@ -271,6 +293,18 @@ sub testlocales {
 
     return $self->_status;
 }
+
+=pod
+
+This returns hash with status, errors and warnings
+
+    {
+        status   => 1/0, # 1 is success, 0 failure
+        errros   => [errro1, errro2],
+        warnings => [warn1, warn2]
+    }
+
+=cut
 
 sub _cstring {
     my %map = (
