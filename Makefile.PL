@@ -17,14 +17,14 @@ WriteMakefile(
     BUILD_REQUIRES => {
         'Moose'                             => 0,
         'Try::Tiny'                         => 0,
-        'File::Spec'                        => 0,
-        'Test::More'                        => 0,
-        'Locale::Maketext::ManyPluralForms' => 0
+        'Encode'                            => 0,
+        'Locale::Maketext::ManyPluralForms' => 0,
+        'Test::More'                        => 0
     },
     PREREQ_PM => {
         'Moose'                             => 0,
         'Try::Tiny'                         => 0,
-        'File::Spec'                        => 0,
+        'Encode'                            => 0,
         'Locale::Maketext::ManyPluralForms' => 0
     },
     dist => {
