@@ -17,15 +17,15 @@ WriteMakefile(
     BUILD_REQUIRES => {
         'Moose'                             => 0,
         'Try::Tiny'                         => 0,
-        'Encode'                            => 0,
         'Locale::Maketext::ManyPluralForms' => 0,
+        'Test::MockModule'                  => 0,
         'Test::More'                        => 0
     },
     PREREQ_PM => {
         'Moose'                             => 0,
         'Try::Tiny'                         => 0,
-        'Encode'                            => 0,
-        'Locale::Maketext::ManyPluralForms' => 0
+        'Locale::Maketext::ManyPluralForms' => 0,
+        'Test::MockModule'                  => 0
     },
     dist => {
         COMPRESS => 'gzip -9f',

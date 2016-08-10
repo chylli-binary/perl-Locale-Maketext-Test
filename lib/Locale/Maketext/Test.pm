@@ -5,8 +5,10 @@ use strict;
 use warnings;
 
 use Try::Tiny;
-use Encode;
+use Test::MockModule;
 use Locale::Maketext::ManyPluralForms;
+
+=encoding UTF-8
 
 =head1 NAME
 
@@ -22,11 +24,6 @@ our $VERSION = '0.01';
 
 =head1 SYNOPSIS
 
-This reads all message ids from the specified PO files and tries to
-translate them into the destination language. PO files can be specified either
-as file name (extension .po) or by providing the language. In the latter case
-the PO file is found in the directory given by the directory option.
-
     use Locale::Maketext::Test;
 
     my $foo = Locale::Maketext::Test->new({directory => '/tmp/locales'});
@@ -34,6 +31,13 @@ the PO file is found in the directory given by the directory option.
     ### optional parameters
     # languages => ['en', 'de'] - to test specific languages in directory, else it will pick all po files in directory
     # debug     => 1 - if you want to check warnings add debug flag else it will output errors only
+
+=head1 DESCRIPTION
+
+This reads all message ids from the specified PO files and tries to
+translate them into the destination language. PO files can be specified either
+as file name (extension .po) or by providing the language. In the latter case
+the PO file is found in the directory given by the directory option.
 
 TYPES OF ERRORS FOUND
 
@@ -253,7 +257,6 @@ sub testlocales {
                 defined $_ && $_ eq 'text' ? 'text' . $i++ : 1;
             } @{$test->[1]};
             try {
-                local $SIG{__WARN__} = sub { die $_[0] };
                 $hnd->maketext($test->[0], @param);
             }
             catch {
@@ -403,7 +406,7 @@ sub _get_po {
 sub _format_message {
     my ($self, $lang, $line, $message) = @_;
     $self->_status->{status} = 0;
-    return encode('utf-8', "(lang=$lg, line=$ln): $message");
+    return "(lang=$lang, line=$line): $message";
 }
 
 __PACKAGE__->meta->make_immutable;
