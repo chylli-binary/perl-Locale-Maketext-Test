@@ -23,9 +23,9 @@ SYNOPSIS
            $response->{status} eq 0;
 
            # check for errors and warnings in case status is 0
-           $response->{errors} = [error1, error2];
+           $response->{errors} = {id => [error1, error2], ru => [error1, error2]};
            # warnings are only present when debug is set to 1
-           $response->{warnings} = [warning1, warning2];
+           $response->{warnings} = {id => [warn1, warn2], ru => [warn1, warn2]};
 
 DESCRIPTION
        This reads all message ids from the specified PO files and tries to

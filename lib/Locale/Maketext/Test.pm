@@ -44,9 +44,9 @@ our $VERSION = '0.01';
     $response->{status} eq 0;
 
     # check for errors and warnings in case status is 0
-    $response->{errors} = [error1, error2];
+    $response->{errors} = {id => [error1, error2], ru => [error1, error2]};
     # warnings are only present when debug is set to 1
-    $response->{warnings} = [warning1, warning2];
+    $response->{warnings} = {id => [warn1, warn2], ru => [warn1, warn2]};
 
 =head1 DESCRIPTION
 
@@ -151,8 +151,8 @@ has _status => (
     default  => sub {
         {
             status   => 1,
-            errors   => [],
-            warnings => []};
+            errors   => {},
+            warnings => {}};
     });
 
 =head2 BUILD
@@ -176,8 +176,9 @@ sub BUILD {
     }
 
     Locale::Maketext::ManyPluralForms->import({
-            '_encoding' => 'utf-8',
-            '*'         => ['Gettext' => File::Spec->rel2abs($self->directory) . '/*.po']});
+            '_decode' => 1,
+            '_auto'   => 1,
+            '*'       => ['Gettext' => File::Spec->rel2abs($self->directory) . '/*.po']});
 }
 
 =head2 testlocales
@@ -232,8 +233,8 @@ sub testlocales {
         $mock->mock(
             plural => sub {
                 # The plural call should provide exactly the number of forms required by the language
-                push @{$self->_status->{errors}},
-                    $self->_format_message($lg, $ln, "\%plural() requires $nplurals parameters for this language (provided: @{[@_ - 2]})")
+                push @{$self->_status->{errors}->{$lg}},
+                    $self->_format_message($ln, "\%plural() requires $nplurals parameters for this language (provided: @{[@_ - 2]})")
                     unless @_ == $nplurals + 2;
 
                 # %plural() can be used like
@@ -265,9 +266,9 @@ sub testlocales {
                 if ($found_percent_d) {
                     if (@no_percent_d > 1) {
                         my $s = join(', ', @no_percent_d[0 .. $#no_percent_d - 1]) . ' and ' . $no_percent_d[-1];
-                        push @{$self->_status->{errors}}, $self->_format_message($lg, $ln, "\%plural() parameters $s miss %d");
+                        push @{$self->_status->{errors}->{$lg}}, $self->_format_message($ln, "\%plural() parameters $s miss %d");
                     } elsif (@no_percent_d == 1) {
-                        push @{$self->_status->{errors}}, $self->_format_message($lg, $ln, "\%plural() parameter $no_percent_d[0] misses %d");
+                        push @{$self->_status->{errors}->{$lg}}, $self->_format_message($ln, "\%plural() parameter $no_percent_d[0] misses %d");
                     }
                 }
 
@@ -280,17 +281,18 @@ sub testlocales {
             my $j     = 0;
             my @param = map {
                 $j++;
-                push @{$self->_status->{warnings}}, $self->_format_message($lg, $ln, "unused parameter \%$j") if (not defined $_ and $self->debug);
+                push @{$self->_status->{warnings}->{$lg}}, $self->_format_message($ln, "unused parameter \%$j") if (not defined $_ and $self->debug);
                 defined $_ && $_ eq 'text' ? 'text' . $i++ : 1;
             } @{$test->[1]};
             try {
+                local $SIG{__WARN__} = sub { die $_[0] };
                 $hnd->maketext($test->[0], @param);
             }
             catch {
                 if (/Can't locate object method "([^"]+)" via package/) {
-                    push @{$self->_status->{errors}}, $self->_format_message($lg, $ln, "Unknown directive \%$1()");
+                    push @{$self->_status->{errors}->{$lg}}, $self->_format_message($ln, "Unknown directive \%$1()");
                 } else {
-                    push @{$self->_status->{errors}}, $self->_format_message($lg, $ln, "Unexpected error:\n$_");
+                    push @{$self->_status->{errors}->{$lg}}, $self->_format_message($ln, "Unexpected error:\n$_");
                 }
             };
         }
@@ -446,9 +448,9 @@ sub _get_po {
 }
 
 sub _format_message {
-    my ($self, $lang, $line, $message) = @_;
+    my ($self, $line, $message) = @_;
     $self->_status->{status} = 0;
-    return "(lang=$lang, line=$line): $message";
+    return "(line=$line): $message";
 }
 
 __PACKAGE__->meta->make_immutable;
