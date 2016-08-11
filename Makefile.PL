@@ -21,6 +21,7 @@ WriteMakefile(
         'Locale::Maketext::ManyPluralForms' => 0,
         'Test::MockModule'                  => 0,
         'Test::More'                        => 0,
+        'Test::Exception'                   => 0,
         'Test::NoWarnings'                  => 0
     },
     PREREQ_PM => {
