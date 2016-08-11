@@ -1,11 +1,13 @@
 use Test::More;
 use Test::NoWarnings;
+use File::Spec;
+use File::Basename;
 use Locale::Maketext::Test;
 
 plan tests => 4;
 
 my $handler = Locale::Maketext::Test->new(
-    directory => 't/locales',
+    directory => dirname(File::Spec->rel2abs($0)) . '/locales',
     languages => ['id']);
 my $result = $handler->testlocales();
 
