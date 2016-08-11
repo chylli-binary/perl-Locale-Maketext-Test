@@ -10,7 +10,7 @@ Version 0.01
 
     use Locale::Maketext::Test;
 
-    my $foo = Locale::Maketext::Test->new({directory => '/tmp/locales'});
+    my $foo = Locale::Maketext::Test->new(directory => '/tmp/locales');
 
     ### optional parameters
     # languages => ['en', 'de'] - to test specific languages in directory, else it will pick all po files in directory

@@ -6,6 +6,7 @@ use warnings;
 use utf8;
 
 use Try::Tiny;
+use File::Spec;
 use Test::MockModule;
 use Locale::Maketext::ManyPluralForms;
 
@@ -27,7 +28,7 @@ our $VERSION = '0.01';
 
     use Locale::Maketext::Test;
 
-    my $foo = Locale::Maketext::Test->new({directory => '/tmp/locales'});
+    my $foo = Locale::Maketext::Test->new(directory => '/tmp/locales');
 
     ### optional parameters
     # languages => ['en', 'de'] - to test specific languages in directory, else it will pick all po files in directory
@@ -127,7 +128,7 @@ directory where locales files are located
 
 has directory => (
     is       => 'ro',
-    isa      => 'str',
+    isa      => 'Str',
     required => 1
 );
 
@@ -189,9 +190,9 @@ sub testlocales {
     my $self = shift;
 
     foreach my $lang (@{$self->languages}) {
-        my $po  = _get_po $lang;
+        my $po  = $self->_get_po($lang);
         my $lg  = $po->{header}->{language};
-        my $hnd = Locale::Maketext::ManyPluralForms::handle_for($lg);
+        my $hnd = Locale::Maketext::ManyPluralForms->get_handle($lg);
         $hnd->plural(1, 'test');
 
         my $plural_sub = $hnd->{_plural};
@@ -386,14 +387,14 @@ sub _bstring {
 sub _get_trans {
     my $f = shift;
 
-    while (defined(my $l = _nextline $f)) {
+    while (defined(my $l = _nextline($f))) {
         if ($l =~ /^\s*msgstr\s*"(.*)"/) {
             my $line = $1;
-            while (defined($l = _nextline $f)) {
+            while (defined($l = _nextline($f))) {
                 if ($l =~ /^\s*"(.*)"/) {
                     $line .= $1;
                 } else {
-                    _unread $l;
+                    _unread($l);
                     return _cstring($line);
                 }
             }
@@ -403,23 +404,26 @@ sub _get_trans {
 }
 
 sub _get_po {
-    my $lang        = shift;
-    my $header_only = shift;
+    my ($self, $lang, $header_only) = @_;
+
+    unless ($lang =~ /\.po$/) {
+        $lang = $self->directory . '/' . $lang . '.po';
+    }
 
     my (%header, @ids, $ln);
     my $first = 1;
 
     open my $f, '<:encoding(UTF-8)', $lang or die "Cannot open $lang: $!\n";
     READ:
-    while (defined(my $l = _nextline $f)) {
+    while (defined(my $l = _nextline($f))) {
         if ($l =~ /^\s*msgid\s*"(.*)"/) {
             my $line = $1;
             $ln = $.;
-            while (defined($l = _nextline $f)) {
+            while (defined($l = _nextline($f))) {
                 if ($l =~ /^\s*"(.*)"/) {
                     $line .= $1;
                 } else {
-                    _unread $l;
+                    _unread($l);
                     if ($first) {
                         undef $first;
                         %header = map { split /\s*:\s*/, lc($_), 2 } split /\n/, _get_trans($f);

@@ -17,6 +17,7 @@ WriteMakefile(
     BUILD_REQUIRES => {
         'Moose'                             => 0,
         'Try::Tiny'                         => 0,
+        'File::Spec'                        => 0,
         'Locale::Maketext::ManyPluralForms' => 0,
         'Test::MockModule'                  => 0,
         'Test::More'                        => 0
@@ -24,6 +25,7 @@ WriteMakefile(
     PREREQ_PM => {
         'Moose'                             => 0,
         'Try::Tiny'                         => 0,
+        'File::Spec'                        => 0,
         'Locale::Maketext::ManyPluralForms' => 0,
         'Test::MockModule'                  => 0
     },
