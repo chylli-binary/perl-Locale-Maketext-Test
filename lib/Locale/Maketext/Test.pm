@@ -213,7 +213,7 @@ sub testlocales {
         my $po  = $self->_get_po($lang);
         my $lg  = $po->{header}->{language};
         my $hnd = Locale::Maketext::ManyPluralForms->get_handle($lg);
-        $hnd->plural(1, 'test %s');
+        $hnd->plural(1, 'test %d');
 
         my $plural_sub = $hnd->{_plural};
 
