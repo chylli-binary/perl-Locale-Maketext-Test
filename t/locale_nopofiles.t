@@ -9,7 +9,7 @@ plan tests => 2;
 
 my $handler = Locale::Maketext::Test->new(
     directory => dirname(File::Spec->rel2abs($0)) . '/locales',
-    languages => ['ID']);
+    languages => ['DE']);
 
 throws_ok {
     $handler->testlocales()
