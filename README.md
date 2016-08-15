@@ -4,17 +4,16 @@ Locale::Maketext::Test
 
 # VERSION
 
-Version 0.02
+Version 0.03
 
 # SYNOPSIS
 
     use Locale::Maketext::Test;
 
-    my $foo = Locale::Maketext::Test->new(directory => '/tmp/locales'); # it will look of files like id.po, ru.po
+    my $foo = Locale::Maketext::Test->new(directory => '/tmp/locales'); # it will look for files like id.po, ru.po
 
     ### optional parameters
-    # languages => ['en', 'de'] - to test specific languages in directory, else it will pick all po files in directory
-        ideally these languages should be as per https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes format
+    # languages => ['en', 'de'] - to test specific languages in directory, else it will pick all po files in directory ideally these languages should be as per https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes format
     # debug     => 1 - if you want to check warnings add debug flag else it will output errors only
     # auto      => 1 set only when you want to fallback in case a key is missing from lexicons
 
@@ -99,7 +98,7 @@ directory where locales files are located
 
 ## languages
 
-language array, set this if you want to test specific language only
+language array, set this if you want to test specific language only in specified directory
 
 ## auto
 
@@ -120,8 +119,8 @@ This returns hash with status, errors and warnings
 
     {
         status   => 1/0, # 1 is success, 0 failure
-        errros   => [errro1, errro2],
-        warnings => [warn1, warn2]
+        errors   => { id => [error1, error2], ru => [error1, error2] },
+        warnings => { id => [warn1, warn2] }
     }
 
 # INSTALLATION

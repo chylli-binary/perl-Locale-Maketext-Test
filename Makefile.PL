@@ -19,6 +19,7 @@ WriteMakefile(
         'Try::Tiny'                         => 0,
         'File::Spec'                        => 0,
         'File::Basename'                    => 0,
+        'namespace::autoclean'              => 0,
         'Test::MockModule'                  => 0,
         'Test::More'                        => 0,
         'Test::Exception'                   => 0,
@@ -29,6 +30,7 @@ WriteMakefile(
         'Moose'                             => 0,
         'Try::Tiny'                         => 0,
         'File::Spec'                        => 0,
+        'namespace::autoclean'              => 0,
         'Test::MockModule'                  => 0,
         'Locale::Maketext::ManyPluralForms' => 0
     },
