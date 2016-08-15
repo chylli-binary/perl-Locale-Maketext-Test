@@ -1,4 +1,4 @@
-use 5.006;
+use 5.014;
 use strict;
 use warnings;
 use ExtUtils::MakeMaker;
@@ -10,7 +10,7 @@ WriteMakefile(
     ABSTRACT           => 'Locale::Maketext::Test supports testing of po files',
     LICENSE            => 'apache',
     PL_FILES           => {},
-    MIN_PERL_VERSION   => 5.006,
+    MIN_PERL_VERSION   => 5.014,
     CONFIGURE_REQUIRES => {
         'ExtUtils::MakeMaker' => 0,
     },
@@ -40,7 +40,7 @@ WriteMakefile(
     },
     clean      => {FILES => 'Local-Maketext-Test-*'},
     META_MERGE => {
-        requires  => {perl => 5.006},
+        requires  => {perl => 5.014},
         resources => {
             homepage   => 'https://github.com/binary-com/perl-Locale-Maketext-Test',
             bugtracker => 'https://github.com/binary-com/perl-Locale-Maketext-Test/issues',
