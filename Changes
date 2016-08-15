@@ -1,5 +1,7 @@
 Revision history for Locale-Maketext-Test
 
-0.01    Date/time
+0.01    12 August 2016
         First version, released on an unsuspecting world.
 
+0.02    15 August 2016
+        Fix failing test
