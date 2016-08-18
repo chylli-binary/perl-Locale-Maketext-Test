@@ -7,7 +7,7 @@ WriteMakefile(
     NAME               => 'Locale::Maketext::Test',
     AUTHOR             => q{Binary.com <binary@cpan.org>},
     VERSION_FROM       => 'lib/Locale/Maketext/Test.pm',
-    ABSTRACT           => 'Locale::Maketext::Test supports testing of po files',
+    ABSTRACT           => 'test validity of .po translation files',
     LICENSE            => 'apache',
     PL_FILES           => {},
     MIN_PERL_VERSION   => 5.014,
