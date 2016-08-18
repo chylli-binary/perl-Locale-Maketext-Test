@@ -13,7 +13,8 @@ Version 0.04
     my $foo = Locale::Maketext::Test->new(directory => '/tmp/locales'); # it will look for files like id.po, ru.po
 
     ### optional parameters
-    # languages => ['en', 'de'] - to test specific languages in directory, else it will pick all po files in directory ideally these languages should be as per https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes format
+    # languages => ['en', 'de'] - to test specific languages in directory, else it will pick all po files in directory
+    # ideally these languages should be as per https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes format
     # debug     => 1 - if you want to check warnings add debug flag else it will output errors only
     # auto      => 1 set only when you want to fallback in case a key is missing from lexicons
 
