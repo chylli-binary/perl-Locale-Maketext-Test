@@ -1,5 +1,8 @@
 # NAME
 
+[![Build Status](https://travis-ci.org/binary-com/perl-Locale-Maketext-Test.svg?branch=master)](https://travis-ci.org/binary-com/perl-Locale-Maketext-Test)
+[![codecov](https://codecov.io/gh/binary-com/perl-Locale-Maketext-Test/branch/master/graph/badge.svg)](https://codecov.io/gh/binary-com/perl-Locale-Maketext-Test)
+
 Locale::Maketext::Test
 
 # VERSION
