@@ -44,9 +44,9 @@ our $VERSION = '0.04';
     $response->{status} eq 0;
 
     # check for errors and warnings in case status is 0
-    $response->{errors} = {id => [error1, error2], ru => [error1, error2]};
+    $response->{errors} = {id => [qw(error1 error2)], ru => [qw(error1 error2)]};
     # warnings are only present when debug is set to 1
-    $response->{warnings} = {id => [warn1, warn2], ru => [warn1, warn2]};
+    $response->{warnings} = {id => [qw(warn1 warn2)], ru => [qw(warn1 warn2)]};
 
 =head1 DESCRIPTION
 
