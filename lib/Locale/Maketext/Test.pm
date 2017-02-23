@@ -10,6 +10,8 @@ use File::Spec;
 use Test::MockModule;
 use Locale::Maketext::ManyPluralForms;
 
+# ABSTRACT: Locale::Maketext::Test
+
 =encoding UTF-8
 
 =head1 NAME
