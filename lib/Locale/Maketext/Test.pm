@@ -434,7 +434,7 @@ sub _get_po {
     my (%header, @ids, $ln);
     my $first = 1;
 
-    open my $f, '<:encoding(UTF-8)', $lang or die "Cannot open $lang: $!\n";
+    open my $f, '<:encoding(UTF-8)', $lang or die "Cannot open $lang: $!\n"; ## no critic (RequireBriefOpen)
     READ:
     while (defined(my $l = _nextline($f))) {
         if ($l =~ /^\s*msgid\s*"(.*)"/) {
@@ -458,7 +458,6 @@ sub _get_po {
         }
     }
 
-    close($f);
     return {
         header => \%header,
         ids    => \@ids,
