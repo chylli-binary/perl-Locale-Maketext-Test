@@ -192,7 +192,7 @@ sub BUILD {
         $self->languages(\@lang);
     }
 
-    Locale::Maketext::ManyPluralForms->import({
+    return Locale::Maketext::ManyPluralForms->import({
             '_decode' => 1,
             '_auto'   => $self->auto,
             '*'       => ['Gettext' => File::Spec->rel2abs($self->directory) . '/*.po']});
@@ -400,6 +400,7 @@ sub _bstring {
 
     sub _unread {
         push @stack, @_;
+        return;
     }
 }
 
@@ -420,6 +421,7 @@ sub _get_trans {
             return _cstring($line);
         }
     }
+    return;
 }
 
 sub _get_po {
@@ -456,6 +458,7 @@ sub _get_po {
         }
     }
 
+    close($f);
     return {
         header => \%header,
         ids    => \@ids,
