@@ -20,7 +20,7 @@ Locale::Maketext::Test
 
 =cut
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 =head1 SYNOPSIS
 
@@ -434,7 +434,7 @@ sub _get_po {
     my (%header, @ids, $ln);
     my $first = 1;
 
-    open my $f, '<:encoding(UTF-8)', $lang or die "Cannot open $lang: $!\n"; ## no critic (RequireBriefOpen)
+    open my $f, '<:encoding(UTF-8)', $lang or die "Cannot open $lang: $!\n";    ## no critic (RequireBriefOpen)
     READ:
     while (defined(my $l = _nextline($f))) {
         if ($l =~ /^\s*msgid\s*"(.*)"/) {
