@@ -5,7 +5,7 @@ use warnings;
 use 5.014;
 use utf8;
 
-use Try::Tiny;
+use Syntax::Keyword::Try;
 use File::Spec;
 use Test::MockModule;
 use Locale::Maketext::ManyPluralForms;
@@ -305,13 +305,13 @@ sub testlocales {
                 local $SIG{__WARN__} = sub { die $_[0] };
                 $hnd->maketext($test->[0], @param);
             }
-            catch {
-                if (/Can't locate object method "([^"]+)" via package/) {
+            catch ($e) {
+                if ($e =~ /Can't locate object method "([^"]+)" via package/) {
                     push @{$self->_status->{errors}->{$lg}}, $self->_format_message($ln, "Unknown directive \%$1()");
                 } else {
-                    push @{$self->_status->{errors}->{$lg}}, $self->_format_message($ln, "Unexpected error:\n$_");
+                    push @{$self->_status->{errors}->{$lg}}, $self->_format_message($ln, "Unexpected error:\n$e");
                 }
-            };
+            }
         }
     }
 
