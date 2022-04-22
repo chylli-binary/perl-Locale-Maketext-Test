@@ -304,8 +304,7 @@ sub testlocales {
             try {
                 local $SIG{__WARN__} = sub { die $_[0] };
                 $hnd->maketext($test->[0], @param);
-            }
-            catch {
+            } catch {
                 if (/Can't locate object method "([^"]+)" via package/) {
                     push @{$self->_status->{errors}->{$lg}}, $self->_format_message($ln, "Unknown directive \%$1()");
                 } else {
