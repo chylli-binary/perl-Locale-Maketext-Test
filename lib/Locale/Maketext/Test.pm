@@ -182,8 +182,8 @@ sub BUILD {
     unless (scalar @{$self->languages}) {
         my @lang = ();
         if (opendir my $dh, $self->directory) {
-            while (readdir $dh) {
-                if (my ($x) = ($_ =~ /^(\w+)\.po$/)) {
+            while (my $dir = readdir($dh)) {
+                if (my ($x) = ($dir =~ /^(\w+)\.po$/)) {
                     push @lang, $x;
                 }
             }
